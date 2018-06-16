@@ -85,10 +85,10 @@ def calculate_suspense(events):
     pass
 
 #World cup API on HackerNews: https://news.ycombinator.com/item?id=17310483
-all_matches_url = "http://worldcup.sfg.io/matches"
+todays_match_url = "http://worldcup.sfg.io/matches/today"
 
 #Get the JSON data from the API
-response = requests.get(all_matches_url)
+response = requests.get(todays_match_url)
 match_data = response.json()
 
 #Store match results in a dict
@@ -96,52 +96,51 @@ matches = {}
 
 #Run through each match
 for i in range(0, len(match_data)):
-    if match_data[i]["status"] == "completed":
-        #'Away' team metrics
-        away_team_name   = match_data[i]['away_team']['country']
-        away_team_goals  = match_data[i]['away_team']['goals']
-        away_team_events = match_data[i]['away_team_events'][0]
+    #'Away' team metrics
+    away_team_name   = match_data[i]['away_team']['country']
+    away_team_goals  = match_data[i]['away_team']['goals']
+    away_team_events = match_data[i]['away_team_events'][0]
 
-        #'Home' team metrics
-        home_team_name   = match_data[i]['home_team']['country']
-        home_team_goals  = match_data[i]['home_team']['goals']
-        home_team_events = match_data[i]['home_team_events'][0]
+    #'Home' team metrics
+    home_team_name   = match_data[i]['home_team']['country']
+    home_team_goals  = match_data[i]['home_team']['goals']
+    home_team_events = match_data[i]['home_team_events'][0]
 
-        #Name the match
-        key = home_team_name + " vs. " + away_team_name
+    #Name the match
+    key = home_team_name + " vs. " + away_team_name
 
-        """
-        Stats to determine the watchability of the game
-        """
-        #points - each game has a points score that tells how good it was
-        points = 0
+    """
+    Stats to determine the watchability of the game
+    """
+    #points - each game has a points score that tells how good it was
+    points = 0
 
-        #Total Goals (More is better)
-        total_goals = home_team_goals + away_team_goals
+    #Total Goals (More is better)
+    total_goals = home_team_goals + away_team_goals
 
-        #Was this match an upset?
-        upset_list  = calculate_upset(home_team_name, away_team_name, home_team_goals > away_team_goals)
-        upset_score = upset_list[0]
-        is_upset    = upset_list[1]
+    #Was this match an upset?
+    upset_list  = calculate_upset(home_team_name, away_team_name, home_team_goals > away_team_goals)
+    upset_score = upset_list[0]
+    is_upset    = upset_list[1]
 
-        #Goal Difference and Upset Score (+ some adjustments)
-        goal_difference = abs(home_team_goals - away_team_goals)
-        if is_upset == True:
-            goal_difference *= UPSET_GD_MULTIPLIER
-        else:
-            upset_score = BLOWOUT_FACTOR ** goal_difference
+    #Goal Difference and Upset Score (+ some adjustments)
+    goal_difference = abs(home_team_goals - away_team_goals)
+    if is_upset == True:
+        goal_difference *= UPSET_GD_MULTIPLIER
+    else:
+        upset_score = BLOWOUT_FACTOR ** goal_difference
+        
+    #Determine how important a match is based on ranking of teams in the match
+    match_importance = calculate_importance(home_team_name, away_team_name) * IMPORTANCE_CONSTANT
 
-        #Determine how important a match is based on ranking of teams in the match
-        match_importance = calculate_importance(home_team_name, away_team_name) * IMPORTANCE_CONSTANT
+    #Calculate suspense by looking to see how many late goals there were
+    #home_susp = calculate_suspense(home_team_events)
+    #away_susp = calculate_suspense(away_team_events)
+    #total_suspense = home_susp + away_susp
 
-        #Calculate suspense by looking to see how many late goals there were
-        #home_susp = calculate_suspense(home_team_events)
-        #away_susp = calculate_suspense(away_team_events)
-        #total_suspense = home_susp + away_susp
-
-        #Calculate the value of watching this match
-        points = total_goals + match_importance + upset_score # + total_suspense
-        matches[key] = points
+    #Calculate the value of watching this match
+    points = total_goals + match_importance + upset_score # + total_suspense
+    matches[key] = points
 
 #Print match ranking results
 i = 1
