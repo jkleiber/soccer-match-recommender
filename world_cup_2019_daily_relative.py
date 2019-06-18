@@ -11,7 +11,7 @@ UPSET_VALUE_EXP = 1.75 #Also experimentally determined by google calc using (ran
 
 def get_arbitrary_team_rankings():
     rankings = []
-    rankings.append("United States")
+    rankings.append("USA")
     rankings.append("France")
     rankings.append("Canada")
     rankings.append("Italy")
@@ -33,7 +33,7 @@ def get_arbitrary_team_rankings():
     rankings.append("New Zealand")
     rankings.append("Scotland")
     rankings.append("South Africa")
-    rankings.append("South Korea")
+    rankings.append("Korea Republic")
     rankings.append("Thailand") 
 
     return rankings

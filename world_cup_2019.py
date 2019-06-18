@@ -134,6 +134,7 @@ for i in range(0, len(match_data)):
         #Calculate the value of watching this match
         points = total_goals + match_importance + upset_score # + total_suspense
         matches[key] = points
+        print(key + " " + str(total_goals) + " " + str(match_importance) + " " + str(upset_score))
 
 #Print match ranking results
 i = 1
